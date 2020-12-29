@@ -1,4 +1,6 @@
 import { Component } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import shortid from 'shortid';
 import Form from './Components/Form/Form';
 import ContactList from './Components/ContactList/ContactList';
@@ -41,15 +43,20 @@ class App extends Component {
     const { contacts } = this.state;
 
     if (name === '' || number === '') {
-      alert('Please enter all values');
+      toast.info('Please enter all values');
+      // alert('Please enter all values');
       return;
     } else if (
       contacts.find(
         contact => contact.name.toLowerCase() === name.toLowerCase(),
       )
     ) {
-      alert('Name is already exsist');
+      // alert('Name is already exsist');
+      toast.info('Name is already exsist');
       return;
+    } else if (!/\d{3}[-]\d{2}[-]\d{2}/g.test(number)) {
+      toast.error(' Enter the correct  phone number');
+      // alert('Enter the correct  phone number');
     }
     this.setState(({ contacts }) => ({
       contacts: [contact, ...contacts],
@@ -81,6 +88,7 @@ class App extends Component {
 
     return (
       <Container>
+        <ToastContainer autoClose={3000} />
         <Title title="Phonebook" />
 
         <Form onSubmit={this.formSubmitHandler} />
@@ -98,3 +106,5 @@ class App extends Component {
 }
 
 export default App;
+
+// 💩
