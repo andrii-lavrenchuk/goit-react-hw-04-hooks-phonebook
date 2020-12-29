@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import shortid from 'shortid';
@@ -8,63 +8,41 @@ import Filter from './Components/Filter/Filter';
 import Title from './Components/Title/Title';
 import Container from './Components/Container/Container';
 
-class App extends Component {
-  state = {
-    contacts: [
-      // { id: shortid.generate(), name: 'Rosie Simpson', number: '459-12-56' },
-      // { id: shortid.generate(), name: 'Hermione Kline', number: '443-89-12' },
-      // { id: shortid.generate(), name: 'Eden Clements', number: '645-17-79' },
-      // { id: shortid.generate(), name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+export default function App() {
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(window.localStorage.getItem('contacts')) ?? [];
+  });
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
-
-  formSubmitHandler = ({ name, number }) => {
+  const formSubmitHandler = (name, number) => {
     const contact = {
       id: shortid.generate(),
       name,
       number,
     };
 
-    const { contacts } = this.state;
-
     if (name === '' || number === '') {
-      toast.info('Please enter all values');
-      // alert('Please enter all values');
+      toast.info('Please fill all fields');
       return;
     } else if (
       contacts.find(
         contact => contact.name.toLowerCase() === name.toLowerCase(),
       )
     ) {
-      // alert('Name is already exsist');
-      toast.info('Name is already exsist');
+      toast.info(`Name ${name} is already exsist`);
       return;
     } else if (!/\d{3}[-]\d{2}[-]\d{2}/g.test(number)) {
-      toast.error(' Enter the correct  phone number');
-      // alert('Enter the correct  phone number');
+      toast.error('Enter the correct  phone number');
+      return;
     }
-    this.setState(({ contacts }) => ({
-      contacts: [contact, ...contacts],
-    }));
+    setContacts(prevContacts => [contact, ...prevContacts]);
   };
 
-  getVisibleContacts = () => {
-    const { filter, contacts } = this.state;
+  const getVisibleContacts = () => {
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter(contact =>
@@ -72,39 +50,33 @@ class App extends Component {
     );
   };
 
-  deleteContact = id => {
-    this.setState(({ contacts }) => ({
-      contacts: contacts.filter(contact => contact.id !== id),
-    }));
+  const deleteContact = contactId => {
+    setContacts(contacts.filter(({ id }) => id !== contactId));
   };
 
-  changeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  render() {
-    const visibleContacts = this.getVisibleContacts();
-    const { filter } = this.state;
+  const visibleContacts = getVisibleContacts();
 
-    return (
-      <Container>
-        <ToastContainer autoClose={3000} />
-        <Title title="Phonebook" />
+  return (
+    <Container>
+      <ToastContainer autoClose={3000} />
+      <Title title="Phonebook" />
 
-        <Form onSubmit={this.formSubmitHandler} />
+      <Form onSubmit={formSubmitHandler} />
 
-        <Title title="Contacts" />
-
-        <Filter value={filter} onChange={this.changeFilter} />
+      <Title title="Contacts" />
+      {contacts.length > 1 && <Filter value={filter} onChange={changeFilter} />}
+      {contacts.length > 0 ? (
         <ContactList
           contacts={visibleContacts}
-          onDeleteContact={this.deleteContact}
+          onDeleteContact={deleteContact}
         />
-      </Container>
-    );
-  }
+      ) : (
+        <p>Add your first contact</p>
+      )}
+    </Container>
+  );
 }
-
-export default App;
-
-// 💩
