@@ -1,4 +1,5 @@
 import { Component } from 'react';
+
 import PropTypes from 'prop-types';
 import s from './Form.module.css';
 import IconButton from '../IconButton/IconButton';
@@ -50,9 +51,7 @@ class Form extends Component {
             ></input>
           </label>
         </label>
-        {/* <button className={s.button} type="submit">
-          Add contact
-        </button> */}
+
         <IconButton type="submit" aria-label="Add contact">
           <AddIcon width="20" height="20" fill="#fff" />
         </IconButton>
