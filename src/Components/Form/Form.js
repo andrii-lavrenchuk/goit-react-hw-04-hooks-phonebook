@@ -1,66 +1,68 @@
-import { Component } from 'react';
+import { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import s from './Form.module.css';
 import IconButton from '../IconButton/IconButton';
 import { ReactComponent as AddIcon } from '../../icons/add.svg';
 
-class Form extends Component {
-  state = {
-    name: '',
-    number: '',
+export default function Form({ onSubmit }) {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+
+    switch (name) {
+      case 'name':
+        setName(value);
+        break;
+      case 'number':
+        setNumber(value);
+        break;
+      default:
+        return;
+    }
   };
 
-  handleChange = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({
-      [name]: value,
-    });
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-
-    this.props.onSubmit(this.state);
-
-    this.setState({ name: '', number: '' });
+    onSubmit(name, number);
+    setName('');
+    setNumber('');
   };
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
+  return (
+    <form onSubmit={handleSubmit}>
+      <label className={s.label}>
+        Name
+        <input
+          className={s.input}
+          type="text"
+          name="name"
+          placeholder="John Jonson"
+          value={name}
+          onChange={handleChange}
+        ></input>
         <label className={s.label}>
-          Name
+          Number
           <input
             className={s.input}
-            type="text"
-            name="name"
-            placeholder="John Jonson"
-            value={this.state.name}
-            onChange={this.handleChange}
+            type="tel"
+            name="number"
+            placeholder="123-45-67"
+            value={number}
+            onChange={handleChange}
           ></input>
-          <label className={s.label}>
-            Number
-            <input
-              className={s.input}
-              type="tel"
-              name="number"
-              placeholder="123-45-67"
-              value={this.state.number}
-              onChange={this.handleChange}
-            ></input>
-          </label>
         </label>
+      </label>
 
-        <IconButton type="submit" aria-label="Add contact">
-          <AddIcon width="20" height="20" fill="#fff" />
-        </IconButton>
-      </form>
-    );
-  }
+      <IconButton type="submit" aria-label="Add contact">
+        <AddIcon width="20" height="20" fill="#fff" />
+      </IconButton>
+    </form>
+  );
 }
 
 Form.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
-export default Form;
